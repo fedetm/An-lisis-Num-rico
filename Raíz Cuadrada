@@ -1,0 +1,19 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+using namespace std;
+
+int main()
+{
+    float n;
+    cin>>n;
+    float y;
+    float x=0;
+    
+    do {
+        x+=0.1;
+        y = 0.5*(x+(n/x));
+    } while(((y*y)-n)>0.1);
+    
+    cout<<y;
+}
