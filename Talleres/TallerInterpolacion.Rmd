@@ -1,0 +1,115 @@
+---
+title: "Taller Interpolación"
+output: html_notebook
+---
+
+<br>
+<center>Nicolás Cervantes<br>William Baquero<br>Federico Torres
+</center>
+<br>
+
+<h4>**Primer punto:**</h4> 
+1.Dados los n + 1 puntos distintos (xi
+, yi) el polinomio interpolante que incluye a todos los puntos es único:
+
+En un intervalo $([a,b] ∈ R$ y que tiene $ {x_0,x_1,...,x_n} , n+1$ puntos distintos que se encuentran en el intervalo $[a,b]$, existe un ÚNICO polinomio de grado n o menor que satisface:
+
+$$ P_n(x_i) = f(x_i) $$ 
+
+$$ P_n(x) = \sum\limits_{i=0}^n f(x_i) L_i(x) $$ 
+
+
+$$ L_i(x) = \prod\limits_{i=1}^n \frac{x-x_j}{x_i-x_j} $$ 
+
+Si para cada $x_i$ existe un polinomio $L_i(x)$ (este polinomio siempre existe y además es continuo) de grado n, entonces **EXISTE** un polinomio $P_n(x)$ de grado n como **MÁXIMO**.
+
+
+Si suponemos la existencia de dos polinomios distintos $P1_n(x)$ y $P2_n(x)$ de grado menor o igual a n y que son solución ,por que satisfacen que $P1_n(xi) = f(x_i)$ y $P2_n(xi) = f(x_i)$ ,podriamos entonces suponer un nuevo polinomio $R_n(x) = P1_n(x) -P2_n(x)$ que tiene un grado menor o igual a n y satisface $R_n(x) = 0$ para cada $i∈ {x_0,x_1,...,x_n}$.
+<br>
+
+Por tanto y según el teorema fundamental del algebra este polinomio $R_n(x)$ tiene solución y $n+1$ raices, por lo cual podríamos concluir que $P1_n(x)$ y $P2_n(x)$ son el mismo y por ende: $P1_n(x) = P2_n(x)$
+
+
+
+<h4>**Segundo punto:**</h4>
+Construya un polinomio de grado tres que pase por:(0, 10),(1, 15),(2, 5) y que la tangente sea igual a 1 en xo.<br>
+
+Tenemos tres puntos en donde queremos conocer el polinomio de grado tres que pasa por los mismos.
+Para resolver esto se usó la función cubicSpline, que permite enviar los puntos a interpolar y las derivadas en estos mismos, para que se cumpla que la tangente en $x_0$ sea igual a 1.
+
+Para la interpolación se utlizaron intervalos de $[0,1]$ y de $[1,2]$.
+
+<br>El primer polinomio, para el primer intervalo dio un resultado de $10x^3+8.25x^2+x-4.25$ y para el segundo intervalo el polinomio que describe la curva es $15x^3-2.50x^2-11.75x+4.25$, en la gráfica se pueden observar los puntos iniciales y la curva que describe estos polinomios de interpolación.
+
+```{r}
+require(pracma)
+library(pracma)
+
+x <- c(0,1,2)
+y <- c(10,15,5)
+
+xi <- seq(0,2,by=1)
+
+f <- cubicspline(x, y, xi = NULL, endp2nd = FALSE, der = c(1,1))
+ffun <- function(xi) ppval(f,xi)
+print(f)
+plot(x,y, main="Figura 1. Interpolación con Spline Cúbico")
+plot(ffun, xlim=c(-1,3), add=TRUE, col = "green", main="Figura 1. Interpolación con Spline Cúbico")
+```
+
+<h4>**Octavo punto:**</h4>
+
+8)Considere el comportamiento de gases no ideales se describe a menudo con la ecuación virial de estado. 
+Los siguientes datos para el nitrógeno N2
+T(K) 100 200 300 400 450 500 600 B(cm3)/mol -160 -35 -4.2 9.0 16.9 21.3
+Donde T es la temperatura [K] y B es el segundo coeﬁciente virial. El comportamiento de gases no ideales se describe a menudo con la ecuaci´on virial de estado
+$$ \frac{PV}{RT} = 1+\frac{B}{V}+\frac{C}{V^2}+...., $$ 
+
+(1)
+Donde P es la presión, V el volumen molar del gas, T es la temperatura Kelvin y R es la constante de gas ideal.Los coeﬁcientes $B = B(T)$, $C = C(T)$, son el segundo y tercer coeﬁciente virial, respectivamente. En la práctica se usa la serie truncada para aproximar
+$$ \frac{PV}{RT} = 1+\frac{B}{V} $$ 
+(2)
+En la siguiente ﬁgura se muestra como se distribuye la variable B a lo largo de la temperatura
+a) Determine un polinomio interpolante para este caso 
+
+El polinomio $y = (-4.9375e^-8)x^4+(8.0175e^-5)x^3-(4.6781e^-2)x^2+11.67475x-1061.1$ fue obtenido al utilizar la función "poly_calc" de la librería "PolynomF".
+En este caso no se tuvo en cuenta el primer punto ya que se consideró un punto atípico, que haría que no se genere de forma correcta el polinomio.
+
+b) Utilizando el resultado anterior calcule el segundo y tercer coeﬁciente virial a 450K.
+
+Al evaluar el polinomio con $x=450$, el resultado fue de $0.59765625$.
+
+c) Graﬁque los puntos y el polinomio que ajusta
+
+Se graficaron datos reales (figuras de color rojo) y datos interpolados (puntos azules).
+```{r}
+require(Matrix)
+require(PolynomF)
+library(Matrix)
+library(PolynomF)
+
+T = c(200,300,400,500,600)
+B = c(-35,-4.2,-9,16.9,21.3)
+
+resultado = poly_calc(T,B)
+resultado
+#B
+cat("->en 450",resultado(450),"\n")
+#C
+tablaInterpolada = data.frame(seq(200, 600, by=100),resultado(seq(200, 600, by=100)))
+tablaInterpolada
+tablaDatos = data.frame(T,B)
+tablaDatos
+plot(tablaDatos,pch=15, cex=2, col = "red", xlab="X",ylab="Y")
+par(new = TRUE)
+plot(tablaInterpolada, pch=20, cex=2, col = "blue",xlab="X", ylab="Y", main="Diagrama ")
+par(new = TRUE)
+
+```
+
+
+d) Utilice la interpolación de Lagrange y escriba el polinomio interpolante 
+
+
+
+e) Compare su resultado con la serie truncada (modelo teórico), cuál aproximacion es mejor por qué?
